@@ -32,6 +32,7 @@ def get_decoder(decoder_args_dict, dictionary):
 
         decoder_args.beam_size_token = len(dictionary)
         if isinstance(decoder_args.unk_weight, str):
+            import math
             decoder_args.unk_weight = eval(decoder_args.unk_weight)
         return W2lKenLMDecoder(decoder_args, dictionary)
 
