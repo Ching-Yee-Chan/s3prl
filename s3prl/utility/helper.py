@@ -64,7 +64,7 @@ def hack_isinstance():
     _isinstance = builtins.isinstance
     def isinstance(obj, cls):
         if _isinstance(obj, defaultdict):
-            return _isinstance(obj, cls) and issubclass(cls, defaultdict)
+            return _isinstance(obj, cls) and isinstance(cls, type) and issubclass(cls, defaultdict)
         return _isinstance(obj, cls)
     builtins.isinstance = isinstance
 

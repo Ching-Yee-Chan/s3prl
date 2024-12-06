@@ -145,9 +145,15 @@ class Featurizer(nn.Module):
         self.name = "Featurizer"
 
         upstream.eval()
-        paired_wavs = [torch.randn(SAMPLE_RATE).to(upstream_device)]
-        with torch.no_grad():
-            paired_features = upstream(paired_wavs)
+        for _ in range(2):
+            paired_wavs = [torch.randn(SAMPLE_RATE).to(upstream_device)]
+            with torch.no_grad():
+                try:
+                    paired_features = upstream(paired_wavs)
+                    break
+                except Exception as e:
+                    show(e, file=sys.stderr)
+                    continue
 
         if feature_selection not in paired_features:
             if "hidden_states" in paired_features:

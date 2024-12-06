@@ -39,6 +39,16 @@ def get_decoder(decoder_args_dict, dictionary):
     return None
 
 
+class Semantic_linear_pool(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
+        self.ln_layer = nn.Linear(in_channels, out_channels)
+        self.pl = nn.AvgPool1d(kernel_size=8, stride=4)
+    def forward(self, x):
+        x = self.ln_layer(x)
+        x = self.pl(x.transpose(1,2))
+        return x.transpose(1, 2)
+
 class DownstreamExpert(nn.Module):
     """
     Used to handle downstream-specific operations
@@ -85,6 +95,10 @@ class DownstreamExpert(nn.Module):
         self.dictionary = Dictionary.load(
             self.datarc.get("dict_path", str(Path(__file__).parent / "char.dict"))
         )
+
+        # # wavLM debug
+        # self.semantic_mapping_layer = Semantic_linear_pool(upstream_dim, 512)
+        # self.projector = nn.Linear(512, self.modelrc["project_dim"])
 
         self.projector = nn.Linear(upstream_dim, self.modelrc["project_dim"])
         model_cls = eval(self.modelrc["select"])
@@ -218,6 +232,11 @@ class DownstreamExpert(nn.Module):
         device = features[0].device
         features_len = torch.IntTensor([len(feat) for feat in features])
         features = pad_sequence(features, batch_first=True).to(device=device)
+
+        # # wavLM debug
+        # features = self.semantic_mapping_layer(features)
+        # features_len = torch.min(features_len // 4, torch.tensor(features.shape[1], dtype=features_len.dtype))
+
         features = self.projector(features)
         logits, log_probs_len = self.model(features, features_len)
         log_probs = nn.functional.log_softmax(logits, dim=-1)
