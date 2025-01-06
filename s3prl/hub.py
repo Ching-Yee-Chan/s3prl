@@ -39,6 +39,8 @@ from s3prl.upstream.wavtokenizer.hubconf import *
 from s3prl.upstream.speechtokenizer.hubconf import *
 from s3prl.upstream.mimicodec.hubconf import *
 from s3prl.upstream.semaiticodec.hubconf import *
+from s3prl.upstream.encodec.hubconf import *
+from s3prl.upstream.dac.hubconf import *
 
 
 def options(only_registered_ckpt: bool = False):
